@@ -7,11 +7,11 @@ public class Localidad {
 	private double longitud;
 	private double latitud;
 	
-	public Localidad (String provincia, String nombre, String latitud, String longitud) {
+	public Localidad (String provincia, String nombre, double latitud, double longitud) {
 		this.provincia = provincia;
 		this.nombre = nombre;
-		this.latitud = Double.parseDouble(latitud);
-		this.longitud = Double.parseDouble(longitud);
+		this.latitud = latitud;
+		this.longitud = longitud;
 	}
 
 	public String getNombre() {
@@ -29,4 +29,10 @@ public class Localidad {
 	public double getLatitud() {
 		return latitud;
 	}
+
+	@Override
+	public String toString() {
+		return "Localidad:" + nombre + ", Provincia de:" + provincia + ", Longitud:" + longitud + ", Latitud:" + latitud;
+	}
+	
 }

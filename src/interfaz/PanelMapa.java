@@ -2,31 +2,22 @@ package interfaz;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
-import javax.swing.JSplitPane;
-import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
-import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
-import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
 import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
-import javax.swing.JTabbedPane;
-import javax.swing.JDesktopPane;
-import javax.swing.JLayeredPane;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JPanel;
-import java.awt.SystemColor;
 import java.awt.Color;
 import java.awt.Font;
+import javax.swing.SwingConstants;
 
 public class PanelMapa {
 
@@ -34,7 +25,7 @@ public class PanelMapa {
 	private JTextField nombreLocalidadTxt;
 	private JTextField latitudTxt;
 	private JTextField longitudTxt;
-	private static List<Localidad> localidades;
+	private Logica logica;
 	private JMapViewer mapa;
 	private JTextField CostoKMtxt;
 	private JTextField mayorA300Txt;
@@ -64,6 +55,8 @@ public class PanelMapa {
 
 	@SuppressWarnings("unchecked")
 	private void initialize() {
+		logica = new Logica();
+		
 		frame = new JFrame();
 		frame.getContentPane().setBackground(new Color(135, 206, 250));
 		frame.setBounds(50, 50, 800, 600);
@@ -71,21 +64,33 @@ public class PanelMapa {
 		frame.getContentPane().setLayout(null);
 		frame.setTitle("Mapa de Red Telefonica");
 		
-		//LABELS
+		//LABELS		
+		JLabel lblCostoKM = new JLabel("Costo ($) por KM:");
+		lblCostoKM.setBounds(10, 24, 89, 14);
+		frame.getContentPane().add(lblCostoKM);
+		
+		JLabel lblMayorA300 = new JLabel("(%) mayor a 300KM:");
+		lblMayorA300.setBounds(10, 65, 150, 14);
+		frame.getContentPane().add(lblMayorA300);
+		
+		JLabel lblEntreProvincias = new JLabel("Costo ($) entre Provincias:");
+		lblEntreProvincias.setBounds(10, 106, 150, 14);
+		frame.getContentPane().add(lblEntreProvincias);
+		
 		JLabel lblSeleccionProvincia = new JLabel("Seleccionar Provincia:");
 		lblSeleccionProvincia.setBounds(10, 216, 136, 14);
 		frame.getContentPane().add(lblSeleccionProvincia);
 		
-		JLabel lblLocalidadNombre = new JLabel("Localidad:");
-		lblLocalidadNombre.setBounds(10, 263, 68, 14);
+		JLabel lblLocalidadNombre = new JLabel("Localidad(*):");
+		lblLocalidadNombre.setBounds(10, 263, 89, 14);
 		frame.getContentPane().add(lblLocalidadNombre);
 		
-		JLabel lblLatitud = new JLabel("Latitud:");
-		lblLatitud.setBounds(10, 308, 50, 14);
+		JLabel lblLatitud = new JLabel("Latitud(*):");
+		lblLatitud.setBounds(10, 308, 89, 14);
 		frame.getContentPane().add(lblLatitud);
 		
-		JLabel lblLongitud = new JLabel("Longitud:");
-		lblLongitud.setBounds(10, 357, 70, 15);
+		JLabel lblLongitud = new JLabel("Longitud(*):");
+		lblLongitud.setBounds(10, 357, 89, 15);
 		frame.getContentPane().add(lblLongitud);
 		
 		JLabel lblCostoTotal = new JLabel("Costo total de la red:");
@@ -101,9 +106,9 @@ public class PanelMapa {
 		frame.getContentPane().add(lblCostoNro);
 		
 		//COMBOBOX DE PROVINCIAS
-		JComboBox comboProvincias = new JComboBox();
+		JComboBox<Object> comboProvincias = new JComboBox<Object>();
 		comboProvincias.setEnabled(false);
-		comboProvincias.setModel(new DefaultComboBoxModel(new String[] {
+		comboProvincias.setModel(new DefaultComboBoxModel<Object>(new String[] {
 				"Buenos Aires", 
 				"Ciudad Autonoma de Buenos Aires", 
 				"Catamarca", "Chaco", "Chubut", 
@@ -118,6 +123,24 @@ public class PanelMapa {
 		frame.getContentPane().add(comboProvincias);
 		
 		//TEXTFIELDS
+		CostoKMtxt = new JTextField();
+		CostoKMtxt.setBounds(10, 37, 150, 22);
+		frame.getContentPane().add(CostoKMtxt);
+		CostoKMtxt.setText("10");
+		CostoKMtxt.setColumns(10);
+
+		mayorA300Txt = new JTextField();
+		mayorA300Txt.setBounds(10, 78, 150, 22);
+		frame.getContentPane().add(mayorA300Txt);
+		mayorA300Txt.setText("50");
+		mayorA300Txt.setColumns(10);
+		
+		entreProvinciasTxt = new JTextField();
+		entreProvinciasTxt.setBounds(10, 120, 150, 22);
+		frame.getContentPane().add(entreProvinciasTxt);
+		entreProvinciasTxt.setText("1000");
+		entreProvinciasTxt.setColumns(10);
+		
 		nombreLocalidadTxt = new JTextField();
 		nombreLocalidadTxt.setEnabled(false);
 		nombreLocalidadTxt.setBounds(10, 277, 150, 22);
@@ -136,64 +159,6 @@ public class PanelMapa {
 		frame.getContentPane().add(longitudTxt);
 		longitudTxt.setColumns(10);
 		
-		localidades = new ArrayList<Localidad>();
-		
-		//COSTOS
-		JLabel lblCostoKM = new JLabel("Costo ($) por KM:");
-		lblCostoKM.setBounds(10, 24, 89, 14);
-		frame.getContentPane().add(lblCostoKM);
-		
-		CostoKMtxt = new JTextField();
-		CostoKMtxt.setBounds(10, 37, 150, 22);
-		frame.getContentPane().add(CostoKMtxt);
-		CostoKMtxt.setText("10");
-		CostoKMtxt.setColumns(10);
-		
-		JLabel lblMayorA300 = new JLabel("(%) mayor a 300KM:");
-		lblMayorA300.setBounds(10, 65, 150, 14);
-		frame.getContentPane().add(lblMayorA300);
-		
-		mayorA300Txt = new JTextField();
-		mayorA300Txt.setBounds(10, 78, 150, 22);
-		frame.getContentPane().add(mayorA300Txt);
-		mayorA300Txt.setText("50");
-		mayorA300Txt.setColumns(10);
-		
-		JLabel lblEntreProvincias = new JLabel("Costo ($) entre Provincias:");
-		lblEntreProvincias.setBounds(10, 106, 150, 14);
-		frame.getContentPane().add(lblEntreProvincias);
-		
-		entreProvinciasTxt = new JTextField();
-		entreProvinciasTxt.setBounds(10, 120, 150, 22);
-		frame.getContentPane().add(entreProvinciasTxt);
-		entreProvinciasTxt.setText("1000");
-		entreProvinciasTxt.setColumns(10);
-				
-		//BOTONES
-		JButton btnAgregar = new JButton("Agregar");
-		btnAgregar.setEnabled(false);
-		btnAgregar.setBounds(10, 421, 150, 22);
-		frame.getContentPane().add(btnAgregar);
-		btnAgregar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Localidad agregar = new Localidad (
-					comboProvincias.getSelectedItem().toString(),
-					nombreLocalidadTxt.getText(),  
-					latitudTxt.getText(),
-					longitudTxt.getText());
-				localidades.add(agregar);
-				
-				nombreLocalidadTxt.setText("");  
-				latitudTxt.setText("");
-				longitudTxt.setText("");
-
-				Coordinate p = new Coordinate(agregar.getLatitud(), agregar.getLongitud());
-				String nombrePunto = agregar.getNombre() + "("+agregar.getLatitud()+","+ agregar.getLongitud()+")";
-				MapMarkerDot punto = new MapMarkerDot(nombrePunto,p);
-				punto.setColor(Color.RED);
-				mapa.addMapMarker(punto);
-			}
-		});
 		//MAPA
 		mapa = new JMapViewer();
 		mapa.setSize(606, 563);
@@ -202,67 +167,106 @@ public class PanelMapa {
 		mapa.setDisplayPosition(inicio,4);
 		frame.getContentPane().add(mapa);
 		
-		//CREAR RED
+		JLabel lblAviso = new JLabel("AVISO");
+		lblAviso.setBounds(21, 194, 551, 113);
+		lblAviso.setVisible(false);
+		
+		JButton btnAceptarAviso = new JButton("Aceptar");
+		btnAceptarAviso.setBounds(421, 273, 89, 23);
+		btnAceptarAviso.setVisible(false);
+		mapa.add(btnAceptarAviso);
+		btnAceptarAviso.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				lblAviso.setVisible(false);
+				btnAceptarAviso.setVisible(false);
+			}
+		});
+		
+		mapa.add(lblAviso);
+		lblAviso.setFont(new Font("Tahoma", Font.BOLD, 22));
+		lblAviso.setForeground(Color.RED);
+		lblAviso.setHorizontalAlignment(SwingConstants.CENTER);
+		lblAviso.setBackground(Color.WHITE);
+		
+		//BOTONES
+		JButton btnAgregar = new JButton("Agregar");
+		btnAgregar.setEnabled(false);
+		btnAgregar.setBounds(10, 421, 150, 22);
+		frame.getContentPane().add(btnAgregar);
+		btnAgregar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					Localidad localidadNueva = new Localidad (comboProvincias.getSelectedItem().toString(), nombreLocalidadTxt.getText(),  
+							Double.parseDouble(latitudTxt.getText()), Double.parseDouble(longitudTxt.getText()));
+					try {
+						logica.agregarLocalidad(localidadNueva);
+						mapa.addMapMarker(logica.crearPunto(localidadNueva));
+					}
+					catch (Exception e1) {
+						lblAviso.setVisible(true);
+						lblAviso.setText(e1.getMessage());
+						btnAceptarAviso.setVisible(true);
+					}
+					nombreLocalidadTxt.setText("");
+					latitudTxt.setText("");
+					longitudTxt.setText("");
+				}
+				catch (Exception e1) {
+					lblAviso.setVisible(true);
+					lblAviso.setText("Campos obligatorios incompletos o incorrectos!");
+					btnAceptarAviso.setVisible(true);
+				}
+			}
+		});
+		
 		JButton btnCrearRed = new JButton("Crear Red");
 		btnCrearRed.setEnabled(false);
-		btnCrearRed.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Grafo g = new Grafo(localidades.size());
-				int costoKM = Integer.parseInt(CostoKMtxt.getText());
-				double costo300KM = Double.parseDouble(mayorA300Txt.getText());
-				int costoEntreProvincias = Integer.parseInt(entreProvinciasTxt.getText());
-				int posicion = 0;
-				double costoTotalRed = 0;
-				
-				for (Localidad l : localidades) {
-					g.agregarLocalidad(l, posicion,costoKM, costo300KM, costoEntreProvincias);
-					posicion++;
-				}
-				
-				double [][] red = g.calcularArbol();
-				
-				for(int fila = 0; fila < red.length; fila++) {
-					for(int col = 0; col < red.length; col++) {
-						if(red[fila][col]!=0) {
-							ArrayList<Coordinate> conexion = new ArrayList<Coordinate>();
-							conexion.add(new Coordinate(localidades.get(fila).getLatitud(), localidades.get(fila).getLongitud()));
-							conexion.add(new Coordinate(localidades.get(fila).getLatitud(), localidades.get(fila).getLongitud()));
-							conexion.add(new Coordinate(localidades.get(col).getLatitud(), localidades.get(col).getLongitud()));
-							MapPolygon linea = new MapPolygonImpl(conexion);
-							linea.getStyle().setColor(Color.BLUE);
-							mapa.addMapPolygon(linea);
-							
-							costoTotalRed = costoTotalRed + red[fila][col];
-						}
-					}
-				}
-				lblCostoTotal.setVisible(true);
-				lblCostoNro.setText("$"+costoTotalRed);
-				lblCostoNro.setVisible(true);
-			}
-		});
 		btnCrearRed.setBounds(10, 530, 150, 22);
 		frame.getContentPane().add(btnCrearRed);
-		
-		//GUARDAR CONFIGURACION COSTOS
-		JButton btnSaveConfig = new JButton("Guardar Configuracion");
-		btnSaveConfig.addActionListener(new ActionListener() {
+		btnCrearRed.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				CostoKMtxt.setEnabled(false);
-				mayorA300Txt.setEnabled(false);
-				entreProvinciasTxt.setEnabled(false);
-				btnSaveConfig.setEnabled(false);
-				
-				comboProvincias.setEnabled(true);
-				nombreLocalidadTxt.setEnabled(true);
-				latitudTxt.setEnabled(true);
-				longitudTxt.setEnabled(true);
-				btnAgregar.setEnabled(true);
-				btnCrearRed.setEnabled(true);
+				try {
+					Grafo g = logica.crearGrafoDeLocalidades();
+					List<MapPolygon> poligonos = logica.crearRedTelefonica(g);
+					for (MapPolygon p : poligonos) {
+						mapa.addMapPolygon(p);
+					}
+					lblCostoTotal.setVisible(true);
+					lblCostoNro.setText("$"+logica.obtenerCostoTotal());
+					lblCostoNro.setVisible(true);
+				}
+				catch (Exception e1) {
+					lblAviso.setVisible(true);
+					lblAviso.setText(e1.getMessage());
+					btnAceptarAviso.setVisible(true);
+				}
 			}
 		});
+		
+		JButton btnSaveConfig = new JButton("Guardar Configuracion");
 		btnSaveConfig.setBounds(10, 153, 150, 22);
 		frame.getContentPane().add(btnSaveConfig);
-		
+		btnSaveConfig.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					logica.guardarConfiguracionCostos(Integer.parseInt(CostoKMtxt.getText()), Double.parseDouble(mayorA300Txt.getText()), Integer.parseInt(entreProvinciasTxt.getText()));
+					CostoKMtxt.setEnabled(false);
+					mayorA300Txt.setEnabled(false);
+					entreProvinciasTxt.setEnabled(false);
+					btnSaveConfig.setEnabled(false);
+					comboProvincias.setEnabled(true);
+					nombreLocalidadTxt.setEnabled(true);
+					latitudTxt.setEnabled(true);
+					longitudTxt.setEnabled(true);
+					btnAgregar.setEnabled(true);
+					btnCrearRed.setEnabled(true);
+				}
+				catch (Exception e1) {
+					lblAviso.setVisible(true);
+					lblAviso.setText(e1.getMessage());
+					btnAceptarAviso.setVisible(true);
+				}
+			}
+		});
 	}
 }

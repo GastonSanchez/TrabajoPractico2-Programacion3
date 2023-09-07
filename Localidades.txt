@@ -1,0 +1,7 @@
+Localidad:A, Provincia de:Buenos Aires, Longitud:-57.0, Latitud:-35.0
+Localidad:B, Provincia de:Buenos Aires, Longitud:-60.0, Latitud:-40.0
+Localidad:C, Provincia de:Buenos Aires, Longitud:-63.0, Latitud:-35.0
+Localidad:D, Provincia de:Buenos Aires, Longitud:-60.0, Latitud:-32.0
+Localidad:E, Provincia de:Buenos Aires, Longitud:-50.0, Latitud:-35.0
+Localidad:F, Provincia de:Buenos Aires, Longitud:-60.0, Latitud:-28.0
+Localidad:G, Provincia de:Buenos Aires, Longitud:-68.0, Latitud:-35.0
